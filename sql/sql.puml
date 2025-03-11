@@ -1,0 +1,74 @@
+@startuml
+' 设置主题和布局
+skinparam linetype ortho
+hide circle
+left to right direction
+
+' 实体定义
+entity user {
+  **id** : bigint
+  --
+  userAccount : varchar(256)
+  userPassword : varchar(512)
+  unionId : varchar(256)
+  mpOpenId : varchar(256)
+  userName : varchar(256)
+  userAvatar : varchar(1024)
+  userProfile : varchar(512)
+  userRole : varchar(256)
+  editTime : datetime
+  createTime : datetime
+  updateTime : datetime
+  isDelete : tinyint
+}
+
+entity question_bank {
+  **id** : bigint
+  --
+  title : varchar(256)
+  description : text
+  picture : varchar(2048)
+  userId : bigint <<FK>>
+  editTime : datetime
+  createTime : datetime
+  updateTime : datetime
+  isDelete : tinyint
+}
+
+entity question {
+  **id** : bigint
+  --
+  title : varchar(256)
+  content : text
+  tags : varchar(1024)
+  answer : text
+  userId : bigint <<FK>>
+  editTime : datetime
+  createTime : datetime
+  updateTime : datetime
+  isDelete : tinyint
+}
+
+entity question_bank_question {
+  **id** : bigint
+  --
+  questionBankId : bigint <<FK>>
+  questionId : bigint <<FK>>
+  userId : bigint <<FK>>
+  createTime : datetime
+  updateTime : datetime
+}
+
+' 关系定义
+user ||--o{ question_bank : "1对多"
+user ||--o{ question : "1对多"
+question_bank }o--|| question_bank_question : "多对多"
+question }o--|| question_bank_question : "多对多"
+
+' 外键关系注释
+question_bank }|..|| user : "userId"
+question }|..|| user : "userId"
+question_bank_question }|..|| question_bank : "questionBankId"
+question_bank_question }|..|| question : "questionId"
+question_bank_question }|..|| user : "userId"
+@enduml

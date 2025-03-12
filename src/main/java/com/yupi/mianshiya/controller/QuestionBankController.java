@@ -144,6 +144,7 @@ public class QuestionBankController {
         Long id = questionBankQueryRequest.getId();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
+        //SELECT * FROM question_bank WHERE id = ?
         QuestionBank questionBank = questionBankService.getById(id);
         ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR);
         // 查询题库封装类
@@ -153,6 +154,7 @@ public class QuestionBankController {
         if (needQueryQuestionList) {
             QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
             questionQueryRequest.setQuestionBankId(id);
+            //SELECT * FROM question WHERE question_bank_id = ? LIMIT ?, ?
             Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
             questionBankVO.setQuestionPage(questionPage);
         }

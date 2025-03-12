@@ -202,13 +202,16 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         long size = questionQueryRequest.getPageSize();
         // 题目表的查询条件
         QueryWrapper<Question> queryWrapper = this.getQueryWrapper(questionQueryRequest);
-        // 根据题库查询题目列表接口
+        // 根据题库查询题目列表接口 获取题库id
         Long questionBankId = questionQueryRequest.getQuestionBankId();
         if (questionBankId != null) {
             // 查询题库内的题目 id
             LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
                     .select(QuestionBankQuestion::getQuestionId)
                     .eq(QuestionBankQuestion::getQuestionBankId, questionBankId);
+            //-- 先查询题库关联题目ID
+            //SELECT question_id FROM question_bank_question
+            //WHERE question_bank_id = 1001;
             List<QuestionBankQuestion> questionList = questionBankQuestionService.list(lambdaQueryWrapper);
             if (CollUtil.isNotEmpty(questionList)) {
                 // 取出题目 id 集合
@@ -220,6 +223,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             }
         }
         // 查询数据库
+        //
+        //-- 主查询（假设关联查询得到 question_id IN (2001,2002,2003)）
+        //SELECT id, title, content, tags, answer, user_id, ...
+        //FROM question
+        //WHERE id IN (2001,2002,2003)
+        //  AND (title LIKE '%排序%' OR content LIKE '%排序%')
+        //  AND JSON_CONTAINS(tags, '["算法"]')
+        //  AND is_delete = 0
+        //LIMIT 10 OFFSET 0;
         Page<Question> questionPage = this.page(new Page<>(current, size), queryWrapper);
         return questionPage;
     }

@@ -11,13 +11,13 @@ import com.yupi.mianshiya.common.ResultUtils;
 import com.yupi.mianshiya.constant.UserConstant;
 import com.yupi.mianshiya.exception.BusinessException;
 import com.yupi.mianshiya.exception.ThrowUtils;
-import com.yupi.mianshiya.model.dto.question.QuestionAddRequest;
-import com.yupi.mianshiya.model.dto.question.QuestionEditRequest;
-import com.yupi.mianshiya.model.dto.question.QuestionQueryRequest;
-import com.yupi.mianshiya.model.dto.question.QuestionUpdateRequest;
+import com.yupi.mianshiya.model.dto.question.*;
+import com.yupi.mianshiya.model.dto.questionBank.QuestionBankQuestionBatchAddRequest;
+import com.yupi.mianshiya.model.dto.questionBank.QuestionBankQuestionBatchRemoveRequest;
 import com.yupi.mianshiya.model.entity.Question;
 import com.yupi.mianshiya.model.entity.User;
 import com.yupi.mianshiya.model.vo.QuestionVO;
+import com.yupi.mianshiya.service.QuestionBankQuestionService;
 import com.yupi.mianshiya.service.QuestionService;
 import com.yupi.mianshiya.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -243,4 +243,14 @@ public class QuestionController {
     }
 
     // endregion
+
+    @PostMapping("/delete/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest questionBatchDeleteRequest,
+                                                      HttpServletRequest request) {
+        ThrowUtils.throwIf(questionBatchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
+        questionService.batchDeleteQuestions(questionBatchDeleteRequest.getQuestionIdList());
+        return ResultUtils.success(true);
+    }
+
 }

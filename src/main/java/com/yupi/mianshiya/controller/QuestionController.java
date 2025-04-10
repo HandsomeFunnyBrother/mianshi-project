@@ -20,6 +20,7 @@ import com.yupi.mianshiya.model.vo.QuestionVO;
 import com.yupi.mianshiya.service.QuestionBankQuestionService;
 import com.yupi.mianshiya.service.QuestionService;
 import com.yupi.mianshiya.service.UserService;
+import com.yupi.mianshiya.utils.CacheClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static com.yupi.mianshiya.constant.RedisConstant.CACHE_QUESTION_KEY;
+import static com.yupi.mianshiya.constant.RedisConstant.CACHE_QUESTION_TTL;
 
 /**
  * 题目接口
@@ -41,7 +46,8 @@ public class QuestionController {
 
     @Resource
     private QuestionService questionService;
-
+    @Resource
+    private CacheClient cacheClient;
     @Resource
     private UserService userService;
 
@@ -138,11 +144,14 @@ public class QuestionController {
     @GetMapping("/get/vo")
     public BaseResponse<QuestionVO> getQuestionVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        Question question = cacheClient
+                .queryWithMutex(CACHE_QUESTION_KEY, id, Question.class, questionService::getById, CACHE_QUESTION_TTL, TimeUnit.MINUTES);
         // 查询数据库
-        Question question = questionService.getById(id);
+//        Question question = questionService.getById(id);
         ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR);
-        // 获取封装类
-        return ResultUtils.success(questionService.getQuestionVO(question, request));
+        QuestionVO questionVO = QuestionVO.objToVo(question);
+        // 获取封装类 questionService.getQuestionVO(question, request)
+        return ResultUtils.success(questionVO);
     }
 
     /**

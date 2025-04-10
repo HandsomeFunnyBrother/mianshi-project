@@ -256,7 +256,7 @@ public class QuestionBankQuestionController {
         Long questionBankId = questionBankQuestionBatchAddRequest.getQuestionBankId();
         List<Long> questionIdList = questionBankQuestionBatchAddRequest.getQuestionIdList();
         //插入到题库题目关联表中
-        questionBankQuestionService.batchAddQuestionsToBank(questionIdList, questionBankId, loginUser);
+        questionBankQuestionService.batchAddQuestionsToBankAnscy(questionIdList, questionBankId, loginUser);
         return ResultUtils.success(true);
     }
 
